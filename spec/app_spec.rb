@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 describe App do
   let(:app) { App.new }
 

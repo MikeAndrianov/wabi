@@ -1,9 +1,11 @@
-# Gemfile
-source "https://rubygems.org"
+# frozen_string_literal: true
+
+source 'https://rubygems.org'
 ruby '2.7.1'
 
-gem 'rack'
 gem 'puma'
+gem 'rack'
+gem 'rubocop', require: false
 
-gem 'rspec'
 gem 'rack-test'
+gem 'rspec'
