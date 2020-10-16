@@ -5,6 +5,13 @@ require 'bundler'
 
 Bundler.require
 
+require './middleware/logger'
 require './app'
 
-run App.new
+app =
+  Rack::Builder.new do |builder|
+    builder.use(Middleware::Logger)
+    builder.run(App.new)
+  end
+
+run app
