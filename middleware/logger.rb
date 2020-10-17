@@ -1,44 +1,45 @@
 # frozen_string_literal: true
 
 require 'json'
-require 'fileutils'
+require 'logger'
+require 'benchmark'
 
 module Middleware
   class Logger
     FILTERED_PARAMS = %w[password password_confirmation].freeze
-    LOGS_FOLDER = 'logs'
 
-    def initialize(app)
+    def initialize(app, logger_class: ::Logger, filtered_params: FILTERED_PARAMS)
       @app = app
+      @logger = logger_class.new($stdout)
+      @logger.level = logger_class::INFO
+      @filtered_params = filtered_params
     end
 
     def call(env)
       request = Rack::Request.new(env)
-      log_request(request)
+      response = nil
 
-      @app.call(env)
+      response_time = Benchmark.measure do
+        response = @app.call(env)
+      end
+      log_request(request, response_time.real)
+
+      response
     end
 
     private
 
-    def log_request(request)
-      FileUtils.mkdir_p(LOGS_FOLDER) unless File.directory?(LOGS_FOLDER)
-
-      file = File.open("#{LOGS_FOLDER}/#{file_name}", 'a')
-      file.write(log_record(request))
-      file.close
+    def log_request(request, response_time_in_seconds)
+      response_time_in_seconds
+        .then { |time_sec| time_sec * 1_000 }
+        .then { |time_ms| log_record(request, time_ms) }
+        .then { |record| @logger.info(record) }
     end
 
-    def log_record(request)
-      "#{DateTime.now}: #{request.request_method} #{request.path}\nparams: #{params(request)}\n\n"
-    end
-
-    def file_name
-      "#{environment}.log"
-    end
-
-    def environment
-      :production
+    def log_record(request, response_time_in_ms)
+      "#{DateTime.now}: #{request.request_method} #{request.path}"\
+      "\nparams: #{params(request)}\n"\
+      "Response Time: #{response_time_in_ms} ms"
     end
 
     def params(request)
@@ -67,7 +68,7 @@ module Middleware
     end
 
     def filtered_value(key, value)
-      FILTERED_PARAMS.include?(key) ? '[FILTERED]' : value
+      @filtered_params.include?(key) ? '[FILTERED]' : value
     end
   end
 end
