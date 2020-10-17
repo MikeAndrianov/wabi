@@ -4,6 +4,7 @@ require 'rack/test'
 
 require './app'
 require './middleware/logger'
+require './middleware/error_handler'
 
 RSpec.configure do |config|
   config.include Rack::Test::Methods

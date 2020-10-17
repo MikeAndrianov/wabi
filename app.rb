@@ -1,7 +1,13 @@
 # frozen_string_literal: true
 
 class App
-  def call(_env)
-    [200, {}, ['Hello world']]
+  def call(env)
+    status, = env
+
+    if status == 500
+      env
+    else
+      [200, {}, ['Hello world']]
+    end
   end
 end

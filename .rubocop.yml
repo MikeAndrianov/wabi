@@ -6,3 +6,7 @@ Documentation:
 
 Metrics/BlockLength:
   ExcludedMethods: ['describe', 'context']
+
+Lint/RescueException:
+  Exclude:
+    - 'middleware/error_handler.rb'
