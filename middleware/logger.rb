@@ -8,10 +8,9 @@ module Middleware
   class Logger
     FILTERED_PARAMS = %w[password password_confirmation].freeze
 
-    def initialize(app, logger_class: ::Logger, filtered_params: FILTERED_PARAMS)
+    def initialize(app, logger: nil, filtered_params: FILTERED_PARAMS)
       @app = app
-      @logger = logger_class.new($stdout)
-      @logger.level = logger_class::INFO
+      @logger = logger || ::Logger.new($stdout, level: ::Logger::INFO)
       @filtered_params = filtered_params
     end
 
