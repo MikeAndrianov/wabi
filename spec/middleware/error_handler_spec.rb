@@ -8,12 +8,10 @@ describe Middleware::ErrorHandler do
     let(:app) { ->(_) { [200, {}, []] } }
 
     context 'when exception was raised' do
+      let(:app) { ->(_) { raise exception } }
       let(:exception) { StandardError.new('Error!') }
 
-      before do
-        allow(app).to receive(:call).with(env).and_raise(exception)
-        allow(exception).to receive(:backtrace).and_return(%w[stack trace])
-      end
+      before { allow(exception).to receive(:backtrace).and_return(%w[stack trace]) }
 
       it { is_expected.to eq([500, {}, ['Something went wrong']]) }
 
