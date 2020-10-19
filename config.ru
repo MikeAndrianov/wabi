@@ -9,9 +9,11 @@ Bundler.require
 require './middleware/logger'
 require './middleware/static_dispatch'
 require './middleware/error_handler'
+require './middleware/error_renderer'
 require './app'
 
 use Middleware::Logger, logger: Logger.new($stdout, level: Logger::INFO)
+use Middleware::ErrorRenderer
 use Middleware::StaticDispatch
 use Middleware::ErrorHandler, show_trace: false
 run App.new
