@@ -12,7 +12,6 @@ module Middleware
 
     def call(env)
       status, headers, body = @app.call(env)
-      request = Rack::Request.new(env)
 
       if @static_error_pages.include?(status)
         static_error_response(status)

@@ -2,10 +2,10 @@
 
 require 'rack/utils'
 require './middleware/files'
-require 'pry'
+
 module Middleware
   class StaticDispatch
-    PUBLIC_ASSETS_URL = /\A\/?assets\/\w+/
+    PUBLIC_ASSETS_URL = %r{\A/?assets/\w+}.freeze
 
     def initialize(app, folder: 'public')
       @app = app
