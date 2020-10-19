@@ -1,44 +1,51 @@
 # frozen_string_literal: true
 
+require 'rack/utils'
+require './middleware/files'
+require 'pry'
 module Middleware
   class StaticDispatch
-    DEFAULT_MIME_TYPE = 'text/plain'
+    PUBLIC_ASSETS_URL = /\A\/?assets\/\w+/
 
-    def initialize(_app, folder: 'public')
+    def initialize(app, folder: 'public')
+      @app = app
       @folder = folder
     end
 
     def call(env)
       request = Rack::Request.new(env)
-      path = @folder + request.path
 
-      if request.get?
-        generate_response(path)
+      if PUBLIC_ASSETS_URL.match?(request.path)
+        handle_asset_request(request)
       else
-        [400, {}, ['Bad request']]
+        @app.call(env)
       end
     end
 
     private
 
-    def generate_response(path)
-      if file_available?(path)
-        [
-          200,
-          { 'Content-Type' => mime_type(path) },
-          [File.read(path)]
-        ]
+    def handle_asset_request(request)
+      file_path = request.path.gsub('/assets', @folder)
+
+      if request.get?
+        generate_static_response(file_path)
       else
-        [404, {}, ['Not found']]
+        [400, {}, [Rack::Utils::HTTP_STATUS_CODES[400]]]
       end
     end
 
-    def file_available?(path)
-      File.file?(path) && File.readable?(path)
-    end
+    def generate_static_response(path)
+      file = Middleware::Files.new(path)
 
-    def mime_type(path)
-      Rack::Mime.mime_type(File.extname(path), DEFAULT_MIME_TYPE)
+      if file.find
+        [
+          200,
+          { 'Content-Type' => file.mime_type },
+          [file.body]
+        ]
+      else
+        [404, {}, [Rack::Utils::HTTP_STATUS_CODES[404]]]
+      end
     end
   end
 end
