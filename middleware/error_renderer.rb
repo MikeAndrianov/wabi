@@ -32,7 +32,7 @@ module Middleware
           [file.body]
         ]
       else
-        [404, {}, [Rack::Utils::HTTP_STATUS_CODES[404]]]
+        [status, {}, [Rack::Utils::HTTP_STATUS_CODES[status]]]
       end
     end
   end
