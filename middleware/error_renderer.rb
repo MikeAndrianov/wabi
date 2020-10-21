@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'rack/utils'
-require './middleware/files'
+require './middleware/utils/files'
 
 module Middleware
   class ErrorRenderer
@@ -23,7 +23,7 @@ module Middleware
     private
 
     def static_error_response(status)
-      file = Middleware::Files.new("public/#{status}.html")
+      file = Utils::Files.new("public/#{status}.html")
 
       if file.find
         [

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'rack/utils'
-require './middleware/files'
+require './middleware/utils/files'
 
 module Middleware
   class StaticDispatch
@@ -35,7 +35,7 @@ module Middleware
     end
 
     def generate_static_response(path)
-      file = Middleware::Files.new(path)
+      file = Utils::Files.new(path)
 
       if file.find
         [

@@ -10,7 +10,7 @@ describe Middleware::ErrorRenderer do
     let(:status) { 404 }
     let(:file_instance) do
       instance_double(
-        Middleware::Files,
+        Middleware::Utils::Files,
         find: is_found,
         mime_type: 'text/html',
         body: file_body
@@ -20,7 +20,7 @@ describe Middleware::ErrorRenderer do
     let(:file_body) { '<html>404</html>' }
 
     before do
-      allow(Middleware::Files)
+      allow(Middleware::Utils::Files)
         .to receive(:new)
         .with('public/404.html')
         .and_return(file_instance)
@@ -39,7 +39,7 @@ describe Middleware::ErrorRenderer do
       let(:file_body) { '<html>500</html>' }
 
       before do
-        allow(Middleware::Files)
+        allow(Middleware::Utils::Files)
           .to receive(:new)
           .with('public/500.html')
           .and_return(file_instance)

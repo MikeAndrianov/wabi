@@ -13,7 +13,7 @@ describe Middleware::StaticDispatch do
 
     let(:file_instance) do
       instance_double(
-        Middleware::Files,
+        Middleware::Utils::Files,
         find: is_found,
         mime_type: 'text/css',
         body: 'h1 { color: red }'
@@ -22,7 +22,7 @@ describe Middleware::StaticDispatch do
     let(:is_found) { true }
 
     before do
-      allow(Middleware::Files)
+      allow(Middleware::Utils::Files)
         .to receive(:new)
         .with('public/app.css')
         .and_return(file_instance)
