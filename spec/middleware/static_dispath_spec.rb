@@ -9,7 +9,7 @@ describe Middleware::StaticDispatch do
   let(:env_options) { {} }
 
   describe '#call' do
-    subject { static_dispatch.call(env) }
+    subject(:response) { static_dispatch.call(env) }
 
     let(:file_instance) do
       instance_double(
@@ -29,13 +29,30 @@ describe Middleware::StaticDispatch do
     end
 
     context 'when file is available' do
-      it { is_expected.to eq([200, { 'Content-Type' => 'text/css' }, ['h1 { color: red }']]) }
+      it { expect(response[0]).to eq(200) }
+      it { expect(response[2]).to eq(['h1 { color: red }']) }
+
+      it 'returns proper set of headers' do
+        headers = response[1]
+
+        expect(headers['Content-Type']).to eq('text/css')
+        expect(headers['Cache-Control']).to eq('public, max-age=31536000')
+        expect(headers).to include('Expires')
+      end
     end
 
     context 'when file is not available' do
       let(:is_found) { false }
 
-      it { is_expected.to eq([404, {}, ['Not Found']]) }
+      it { expect(response[0]).to eq(404) }
+      it { expect(response[2]).to eq(['Not Found']) }
+
+      it 'returns proper set of headers' do
+        headers = response[1]
+
+        expect(headers['Cache-Control']).to eq('public, max-age=31536000')
+        expect(headers).to include('Expires')
+      end
     end
 
     context 'with inappropriate request type' do
