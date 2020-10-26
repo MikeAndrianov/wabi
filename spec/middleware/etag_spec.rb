@@ -4,7 +4,6 @@ describe Middleware::Etag do
   subject(:etag) { described_class.new(app) }
 
   let(:app) { ->(_) { [200, {}, ['Hello world']] } }
-
   let(:env) { Rack::MockRequest.env_for('/', env_options) }
   let(:env_options) { {} }
 
@@ -24,13 +23,13 @@ describe Middleware::Etag do
     end
 
     context 'when request has invalid etag' do
-      let(:env_options) { { 'HTTP_IF_NONE_MATCH' => 'hl'} }
+      let(:env_options) { { 'HTTP_IF_NONE_MATCH' => 'hl' } }
 
       include_examples 'returns full response'
     end
 
     context 'when request has valid etag' do
-      let(:env_options) { { 'HTTP_IF_NONE_MATCH' => 'hlwrld'} }
+      let(:env_options) { { 'HTTP_IF_NONE_MATCH' => 'hlwrld' } }
 
       it { expect(response[0]).to eq(304) }
       it { expect(response[1]).to eq({}) }
