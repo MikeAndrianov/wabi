@@ -36,25 +36,24 @@ describe Middleware::Etag do
       it { expect(response[1]).to eq({}) }
       it { expect(response[2]).to eq([]) }
 
-      context 'with fresh_when options' do
+      context 'with etag has been already set' do
         let(:headers) do
           {
-            fresh_when_options: {
-              etag: 'test',
-              public: false,
-              last_modified: last_modified
-            }
+            'ETag' => 'hlwrld',
+            'Cache-Control' => 'max-age=18000, private',
+            'Last-Modified' => last_modified
           }
         end
         let(:last_modified) { 'Thu, 29 Oct 2020 22:12:46 +0100' }
 
-        it { expect(response[0]).to eq(200) }
-        it { expect(response[2]).to eq(['Hello world']) }
-        it 'returns headers from specified in fresh_when' do
+        it { expect(response[0]).to eq(304) }
+        it { expect(response[2]).to eq([]) }
+
+        it 'returns specific headers without modification' do
           expect(response[1])
             .to include(
-              'Cache-Control' => 'max-age=36000, private',
-              'ETag' => 'test',
+              'Cache-Control' => 'max-age=18000, private',
+              'ETag' => 'hlwrld',
               'Last-Modified' => last_modified
             )
         end
