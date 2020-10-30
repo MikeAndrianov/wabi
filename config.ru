@@ -16,6 +16,6 @@ require './app'
 use Middleware::Logger, logger: Logger.new($stdout, level: Logger::INFO)
 use Middleware::ErrorRenderer
 use Middleware::StaticDispatch
-use Middleware::ErrorHandler, show_trace: false
+use Middleware::ErrorHandler, show_trace: true
 use Middleware::Etag
 run App.new

@@ -3,7 +3,8 @@
 describe Middleware::Etag do
   subject(:etag) { described_class.new(app) }
 
-  let(:app) { ->(_) { [200, {}, ['Hello world']] } }
+  let(:app) { ->(_) { [200, headers, ['Hello world']] } }
+  let(:headers) { {} }
   let(:env) { Rack::MockRequest.env_for('/', env_options) }
   let(:env_options) { {} }
 
@@ -34,6 +35,30 @@ describe Middleware::Etag do
       it { expect(response[0]).to eq(304) }
       it { expect(response[1]).to eq({}) }
       it { expect(response[2]).to eq([]) }
+
+      context 'with fresh_when options' do
+        let(:headers) do
+          {
+            fresh_when_options: {
+              etag: 'test',
+              public: false,
+              last_modified: last_modified
+            }
+          }
+        end
+        let(:last_modified) { 'Thu, 29 Oct 2020 22:12:46 +0100' }
+
+        it { expect(response[0]).to eq(200) }
+        it { expect(response[2]).to eq(['Hello world']) }
+        it 'returns headers from specified in fresh_when' do
+          expect(response[1])
+            .to include(
+              'Cache-Control' => 'max-age=36000, private',
+              'ETag' => 'test',
+              'Last-Modified' => last_modified
+            )
+        end
+      end
     end
   end
 end
