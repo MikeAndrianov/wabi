@@ -30,16 +30,18 @@ module Middleware
     end
 
     def fresh?(headers, new_body, client_etag)
-      etag = headers[Rack::ETAG] || etag(new_body)
+      return if new_body.empty?
 
+      etag = headers[Rack::ETAG] || etag(new_body)
       etag == client_etag
     end
 
     def full_response_headers(headers, body)
-      headers.merge(
-        Rack::ETAG => etag(body),
-        Rack::CACHE_CONTROL => cache_control(headers)
-      )
+      headers
+        .merge(
+          Rack::ETAG => etag(body),
+          Rack::CACHE_CONTROL => cache_control(headers)
+        ).compact
     end
 
     def cache_control(headers)
@@ -47,6 +49,8 @@ module Middleware
     end
 
     def etag(body)
+      return if body.empty?
+
       Digest::SHA256.hexdigest(body[0])
     end
   end
