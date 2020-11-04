@@ -13,6 +13,7 @@ require './middleware/error_renderer'
 require './middleware/etag'
 require './app'
 
+use Rack::Reloader
 use Middleware::Logger, logger: Logger.new($stdout, level: Logger::INFO)
 use Middleware::ErrorRenderer
 use Middleware::StaticDispatch
