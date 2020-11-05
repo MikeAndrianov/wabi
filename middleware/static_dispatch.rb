@@ -6,6 +6,7 @@ require './middleware/utils/files'
 module Middleware
   class StaticDispatch
     PUBLIC_ASSETS_URL = %r{\A/?assets/\w+}.freeze
+    MAX_AGE = 31_536_000
 
     def initialize(app, folder: 'public')
       @app = app
@@ -25,10 +26,12 @@ module Middleware
     private
 
     def handle_asset_request(request)
-      file_path = request.path.gsub('/assets', @folder)
-
       if request.get?
-        generate_static_response(file_path)
+        file_path = request.path.gsub('/assets', @folder)
+
+        response = Rack::Response[*generate_static_response(file_path)]
+        response.cache!(MAX_AGE)
+        response.finish
       else
         [400, {}, [Rack::Utils::HTTP_STATUS_CODES[400]]]
       end
