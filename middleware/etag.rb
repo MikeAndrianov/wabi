@@ -37,11 +37,10 @@ module Middleware
     end
 
     def full_response_headers(headers, body)
-      headers
-        .merge(
-          Rack::ETAG => etag(body),
-          Rack::CACHE_CONTROL => cache_control(headers)
-        ).compact
+      {
+        Rack::ETAG => etag(body),
+        Rack::CACHE_CONTROL => cache_control(headers)
+      }.merge(headers).compact
     end
 
     def cache_control(headers)
