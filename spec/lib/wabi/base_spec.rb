@@ -1,13 +1,8 @@
 # frozen_string_literal: true
 
 describe Wabi::Base do
-  # subject(:base) { described_class.new() }
-
-  # let(:app) { ->(_) { [200, {}, []] } }
-  let(:env) { Rack::MockRequest.env_for(url, env_options) }
-  let(:url) { '/some/url' }
-  let(:env_options) { {} }
   let(:router) { instance_double(Wabi::Router) }
+  let(:url) { '/some/url' }
 
   before do
     allow(Wabi::Router).to receive(:instance).and_return(router)
@@ -29,5 +24,12 @@ describe Wabi::Base do
   end
 
   describe '#call' do
+    subject { described_class.new.call(env) }
+
+    let(:env) { Rack::MockRequest.env_for(url) }
+
+    before { allow(router).to receive(:find_response).with('GET', url).and_return(->(_env) { [200, {}, ['Hello']] }) }
+
+    it { is_expected.to eq([200, {}, ['Hello']]) }
   end
 end

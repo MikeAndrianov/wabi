@@ -7,6 +7,7 @@ module Wabi
     include Singleton
 
     Route = Struct.new(:http_verb, :path, :response)
+    NOT_FOUND_RESPONSE = proc { [404, {}, [Rack::Utils::HTTP_STATUS_CODES[404]]] }
 
     attr_accessor :routes
 
@@ -19,9 +20,9 @@ module Wabi
     end
 
     def find_response(http_verb, path)
-      @routes
+      routes
         .find { |route| route.http_verb == http_verb && route.path == path }
-        .response
+        &.response || NOT_FOUND_RESPONSE
     end
   end
 end

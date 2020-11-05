@@ -23,5 +23,13 @@ describe Wabi::Router do
     before { router.add_route('POST', '/test', -> {}) }
 
     it { expect(router.find_response('POST', '/test')).to be_a(Proc) }
+
+    context 'when route is not found' do
+      it 'returns 404 error' do
+        response = router.find_response('GET', '/test').call
+
+        expect(response).to eq([404, {}, ['Not Found']])
+      end
+    end
   end
 end

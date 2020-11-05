@@ -3,9 +3,6 @@
 require 'time'
 require './lib/wabi'
 
-
-require 'pry'
-
 class App < Wabi::Base
   get '/' do
     fresh_when(
