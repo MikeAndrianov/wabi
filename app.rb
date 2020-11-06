@@ -2,6 +2,7 @@
 
 require 'time'
 require './lib/wabi'
+require './second_app'
 
 class App < Wabi::Base
   get '/' do
@@ -21,5 +22,5 @@ class App < Wabi::Base
     [201, { 'Location' => 'http://google.com' }, []]
   end
 
-  # mount '/rack_app', NextRackApp
+  mount '/another', SecondApp
 end
