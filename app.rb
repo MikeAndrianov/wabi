@@ -1,12 +1,11 @@
 # frozen_string_literal: true
 
 require 'time'
-require './middleware/utils/cache'
+require './lib/wabi'
+require './second_app'
 
-class App
-  include Middleware::Utils::Cache
-
-  def call(_env)
+class App < Wabi::Base
+  get '/' do
     fresh_when(
       [200, {}, ['Hello world!']],
       etag: [1, 'test', { key: :value }],
@@ -14,4 +13,14 @@ class App
       last_modified: (Time.new - 360).rfc2822
     )
   end
+
+  get '/about' do
+    [200, {}, ['About']]
+  end
+
+  post '/google' do
+    [201, { 'Location' => 'http://google.com' }, []]
+  end
+
+  mount '/another', SecondApp
 end
