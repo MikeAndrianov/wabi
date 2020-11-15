@@ -1,24 +1,10 @@
 # frozen_string_literal: true
 
 require 'singleton'
+require_relative 'route'
+require_relative 'mount_route'
 
 module Wabi
-  class MountRoute
-    attr_reader :path
-
-    def initialize(path, mount_class)
-      @path = path
-      @mount_class = mount_class
-      @app = @mount_class.new
-    end
-
-    def response(env)
-      @app.call(env)
-    end
-  end
-
-  Route = Struct.new(:http_verb, :path, :response)
-
   class Router
     include Singleton
 
@@ -41,7 +27,24 @@ module Wabi
       mount_route = @mount_routes.find { |route| path.start_with?(route.path) }
       return mount_route if mount_route
 
-      routes.find { |route| route.http_verb == http_verb && route.path == path }
+      routes.find { |route| matching_route?(route, http_verb, path) }
+    end
+
+    private
+
+    def matching_route?(route, http_verb, path)
+      return false unless route.http_verb == http_verb
+
+      route_path = route.path
+      splitted_route_path = route_path.split('/')
+
+      if splitted_route_path.any? { |path_chunk| path_chunk.include?(':') }
+        regex = Regexp.new(route_path.gsub(/:\w+/, '\w+'))
+
+        path.match?(regex)
+      else
+        route.path == path
+      end
     end
   end
 end

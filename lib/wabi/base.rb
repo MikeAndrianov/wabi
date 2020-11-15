@@ -2,14 +2,17 @@
 
 require './middleware/utils/cache'
 require_relative 'router'
+require_relative 'parameters'
 
 module Wabi
   class Base
     include Middleware::Utils::Cache
 
     NOT_FOUND_RESPONSE = [404, {}, [Rack::Utils::HTTP_STATUS_CODES[404]]].freeze
+    DEFAULT_STATUS = 200
+    DEFAULT_HEADERS = {}.freeze
 
-    attr_reader :env
+    attr_reader :response
 
     def self.get(path, &block)
       add_route('GET', path, block)
@@ -26,24 +29,45 @@ module Wabi
     end
 
     def call(env)
-      @env = env
-      http_verb = env['REQUEST_METHOD']
-      path = env['PATH_INFO']
+      @request = Rack::Request.new(env)
 
-      resolve(http_verb, path, env)
+      resolve
+    end
+
+    def params
+      @params ||= Parameters.get(@route, @request)
+    end
+
+    def headers(header_hash)
+      @headers = header_hash
+    end
+
+    def status(status)
+      @status = status
     end
 
     private
 
-    def resolve(http_verb, path, env)
-      route = Router.instance.find_route(http_verb, path)
-      return NOT_FOUND_RESPONSE unless route
+    def resolve
+      @route = Router.instance.find_route(@request.request_method, @request.path_info)
+      return NOT_FOUND_RESPONSE unless @route
 
-      if route.is_a?(Wabi::MountRoute)
-        route.response(env)
-      else
-        instance_eval(&route.response)
-      end
+      @response = Rack::Response[*generate_response]
+      @response.finish
+    end
+
+    def generate_response
+        if @route.is_a?(Wabi::MountRoute)
+          @route.response(@request.env)
+        else
+          body = instance_eval(&@route.response)
+
+          [
+            @status || DEFAULT_STATUS,
+            @headers || DEFAULT_HEADERS,
+            [body]
+          ]
+        end
     end
 
     def self.add_route(http_verb, path, block)

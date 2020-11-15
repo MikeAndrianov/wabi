@@ -7,7 +7,7 @@ require './second_app'
 class App < Wabi::Base
   get '/' do
     fresh_when(
-      [200, {}, ['Hello world!']],
+      'Hello world!',
       etag: [1, 'test', { key: :value }],
       cache_control: 'max-age=18000, private',
       last_modified: (Time.new - 360).rfc2822
@@ -15,11 +15,24 @@ class App < Wabi::Base
   end
 
   get '/about' do
-    [200, {}, ['About']]
+    'About'
   end
 
   post '/google' do
-    [201, { 'Location' => 'http://google.com' }, []]
+    status(201)
+    headers('Location' => 'http://google.com')
+
+    nil # empty body
+  end
+
+  get '/profile/:id' do
+    headers('Content-Type' => 'application/json')
+    status(201)
+    params.to_json
+  end
+
+  post '/s/:article_slug/comments/:id' do
+    params.keys.join(', ')
   end
 
   mount '/another', SecondApp
