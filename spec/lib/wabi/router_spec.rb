@@ -19,6 +19,14 @@ describe Wabi::Router do
     end
   end
 
+  describe '#add_mount_route' do
+    it { expect { router.add_mount_route('/test', Class.new) }.to change { router.mount_routes.count }.from(0).to(1) }
+  end
+
+  describe '#add_resources_route' do
+    it { expect { router.add_resources_route(:posts, []) }.to change { router.resources_routes.count }.from(0).to(1) }
+  end
+
   describe '#find_route' do
     before { router.add_route('POST', '/test', -> {}) }
 

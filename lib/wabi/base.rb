@@ -2,14 +2,17 @@
 
 require './middleware/utils/cache'
 require_relative 'router'
+require_relative 'parameters'
 
 module Wabi
   class Base
     include Middleware::Utils::Cache
 
     NOT_FOUND_RESPONSE = [404, {}, [Rack::Utils::HTTP_STATUS_CODES[404]]].freeze
+    DEFAULT_STATUS = 200
+    DEFAULT_HEADERS = {}.freeze
 
-    attr_reader :env
+    attr_reader :response
 
     def self.get(path, &block)
       add_route('GET', path, block)
@@ -19,6 +22,12 @@ module Wabi
       add_route('POST', path, block)
     end
 
+    def self.resources(resource_plural_name, except: [])
+      Router
+        .instance
+        .add_resources_route(resource_plural_name, except)
+    end
+
     def self.mount(path, app_class)
       Router
         .instance
@@ -26,24 +35,52 @@ module Wabi
     end
 
     def call(env)
-      @env = env
-      http_verb = env['REQUEST_METHOD']
-      path = env['PATH_INFO']
+      @request = Rack::Request.new(env)
 
-      resolve(http_verb, path, env)
+      resolve
     end
+
+    def params
+      @params ||= Parameters.get(@route, @request)
+    end
+
+    # rubocop:disable Style/TrivialAccessors
+    def headers(header_hash)
+      @headers = header_hash
+    end
+
+    def status(status)
+      @status = status
+    end
+    # rubocop:enable Style/TrivialAccessors
 
     private
 
-    def resolve(http_verb, path, env)
-      route = Router.instance.find_route(http_verb, path)
-      return NOT_FOUND_RESPONSE unless route
+    def resolve
+      @route = Router.instance.find_route(@request.request_method, @request.path_info)
+      return NOT_FOUND_RESPONSE unless @route
 
-      if route.is_a?(Wabi::MountRoute)
-        route.response(env)
+      @response = Rack::Response[*generate_response]
+      @response.finish
+    end
+
+    def generate_response
+      case @route
+      when Wabi::MountRoute, Wabi::ResourcesRoute
+        @route.response(@request.env)
       else
-        instance_eval(&route.response)
+        route_response
       end
+    end
+
+    def route_response
+      body = instance_eval(&@route.response)
+
+      [
+        @status || DEFAULT_STATUS,
+        @headers || DEFAULT_HEADERS,
+        [body]
+      ]
     end
 
     def self.add_route(http_verb, path, block)
