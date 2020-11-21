@@ -3,16 +3,18 @@
 require 'singleton'
 require_relative 'route'
 require_relative 'mount_route'
+require_relative 'resources_route'
 
 module Wabi
   class Router
     include Singleton
 
-    attr_accessor :routes
+    attr_accessor :routes, :mount_routes, :resources_routes
 
     def initialize
       @routes = []
       @mount_routes = []
+      @resources_routes = []
     end
 
     def add_route(http_verb, path, response)
@@ -23,28 +25,15 @@ module Wabi
       @mount_routes << MountRoute.new(path, mount_class)
     end
 
+    def add_resources_route(resource_plural_name, except)
+      @resources_routes << ResourcesRoute.new(resource_plural_name, except)
+    end
+
     def find_route(http_verb, path)
       mount_route = @mount_routes.find { |route| path.start_with?(route.path) }
       return mount_route if mount_route
 
-      routes.find { |route| matching_route?(route, http_verb, path) }
-    end
-
-    private
-
-    def matching_route?(route, http_verb, path)
-      return false unless route.http_verb == http_verb
-
-      route_path = route.path
-      splitted_route_path = route_path.split('/')
-
-      if splitted_route_path.any? { |path_chunk| path_chunk.include?(':') }
-        regex = Regexp.new(route_path.gsub(/:\w+/, '\w+'))
-
-        path.match?(regex)
-      else
-        route.path == path
-      end
+      (routes + resources_routes).find { |route| route.match?(http_verb, path) }
     end
   end
 end

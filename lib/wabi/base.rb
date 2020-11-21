@@ -22,6 +22,12 @@ module Wabi
       add_route('POST', path, block)
     end
 
+    def self.resources(resource_plural_name, except: [])
+      Router
+        .instance
+        .add_resources_route(resource_plural_name, except)
+    end
+
     def self.mount(path, app_class)
       Router
         .instance
@@ -38,6 +44,7 @@ module Wabi
       @params ||= Parameters.get(@route, @request)
     end
 
+    # rubocop:disable Style/TrivialAccessors
     def headers(header_hash)
       @headers = header_hash
     end
@@ -45,6 +52,7 @@ module Wabi
     def status(status)
       @status = status
     end
+    # rubocop:enable Style/TrivialAccessors
 
     private
 
@@ -57,17 +65,22 @@ module Wabi
     end
 
     def generate_response
-        if @route.is_a?(Wabi::MountRoute)
-          @route.response(@request.env)
-        else
-          body = instance_eval(&@route.response)
+      case @route
+      when Wabi::MountRoute, Wabi::ResourcesRoute
+        @route.response(@request.env)
+      else
+        route_response
+      end
+    end
 
-          [
-            @status || DEFAULT_STATUS,
-            @headers || DEFAULT_HEADERS,
-            [body]
-          ]
-        end
+    def route_response
+      body = instance_eval(&@route.response)
+
+      [
+        @status || DEFAULT_STATUS,
+        @headers || DEFAULT_HEADERS,
+        [body]
+      ]
     end
 
     def self.add_route(http_verb, path, block)

@@ -35,5 +35,7 @@ class App < Wabi::Base
     params.keys.join(', ')
   end
 
+  resources :posts, except: %i[edit destroy]
+
   mount '/another', SecondApp
 end

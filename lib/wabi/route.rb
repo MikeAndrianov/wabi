@@ -1,7 +1,11 @@
 # frozen_string_literal: true
 
+require_relative 'params_from_path'
+
 module Wabi
   class Route
+    include ParamsFromPath
+
     attr_reader :http_verb, :path, :response
 
     def initialize(http_verb, path, response)
@@ -10,16 +14,16 @@ module Wabi
       @response = response
     end
 
-    def params_from_path(request_path)
-      request_path
-        .match(named_capture_regex)
-        .named_captures
-    end
+    def match?(request_http_verb, request_path)
+      return false unless http_verb == request_http_verb
 
-    private
+      if path.include?(':')
+        regex = Regexp.new(path.gsub(/:\w+/, '\w+'))
 
-    def named_capture_regex
-      Regexp.new(path.gsub(/:(?<param>\w+)/, '(?<\k<param>>\w+)'))
+        request_path.match?(regex)
+      else
+        path == request_path
+      end
     end
   end
 end

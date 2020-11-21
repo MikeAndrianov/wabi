@@ -1,4 +1,4 @@
-# # frozen_string_literal: true
+# frozen_string_literal: true
 
 describe Wabi::Parameters do
   describe '#get' do
