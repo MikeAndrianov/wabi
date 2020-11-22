@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-describe Wabi::Router do
+describe Wabi::Router::Base do
   subject(:router) { Class.new(described_class).instance }
 
   before { router.routes = [] }
@@ -12,7 +12,7 @@ describe Wabi::Router do
       router.add_route('GET', '/', -> {})
       route = router.routes[0]
 
-      expect(route).to be_a(Wabi::Route)
+      expect(route).to be_a(Wabi::Router::Route)
       expect(route.http_verb).to eq('GET')
       expect(route.path).to eq('/')
       expect(route.response).to be_a(Proc)
@@ -30,7 +30,7 @@ describe Wabi::Router do
   describe '#find_route' do
     before { router.add_route('POST', '/test', -> {}) }
 
-    it { expect(router.find_route('POST', '/test')).to be_a(Wabi::Route) }
+    it { expect(router.find_route('POST', '/test')).to be_a(Wabi::Router::Route) }
     it { expect(router.find_route('GET', '/test')).to be_nil }
   end
 end

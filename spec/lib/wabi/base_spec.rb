@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 
 describe Wabi::Base do
-  let(:router) { instance_double(Wabi::Router) }
+  let(:router) { instance_double(Wabi::Router::Base) }
   let(:url) { '/some/url' }
 
   before do
-    allow(Wabi::Router).to receive(:instance).and_return(router)
+    allow(Wabi::Router::Base).to receive(:instance).and_return(router)
     allow(router).to receive(:add_route)
   end
 
@@ -39,7 +39,7 @@ describe Wabi::Base do
     subject { described_class.new.call(env) }
 
     let(:env) { Rack::MockRequest.env_for(url) }
-    let(:route) { Wabi::Route.new('GET', url, ->(_env) { 'Hello' }) }
+    let(:route) { Wabi::Router::Route.new('GET', url, ->(_env) { 'Hello' }) }
 
     before { allow(router).to receive(:find_route).with('GET', url).and_return(route) }
 
@@ -48,7 +48,7 @@ describe Wabi::Base do
     context 'when mounted route' do
       let(:mounted) { spy('mount') }
       let(:url) { '/some/another-url' }
-      let(:route) { Wabi::MountRoute.new('/some', mounted) }
+      let(:route) { Wabi::Router::MountRoute.new('/some', mounted) }
 
       before { allow(mounted).to receive(:call).and_return([200, {}, ['Hello']]) }
 

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require './middleware/utils/cache'
-require_relative 'router'
+require './lib/wabi/router/base'
 require_relative 'parameters'
 
 module Wabi
@@ -23,13 +23,13 @@ module Wabi
     end
 
     def self.resources(resource_plural_name, except: [])
-      Router
+      Router::Base
         .instance
         .add_resources_route(resource_plural_name, except)
     end
 
     def self.mount(path, app_class)
-      Router
+      Router::Base
         .instance
         .add_mount_route(path, app_class)
     end
@@ -57,7 +57,7 @@ module Wabi
     private
 
     def resolve
-      @route = Router.instance.find_route(@request.request_method, @request.path_info)
+      @route = Router::Base.instance.find_route(@request.request_method, @request.path_info)
       return NOT_FOUND_RESPONSE unless @route
 
       @response = Rack::Response[*generate_response]
@@ -66,7 +66,7 @@ module Wabi
 
     def generate_response
       case @route
-      when Wabi::MountRoute, Wabi::ResourcesRoute
+      when Wabi::Router::MountRoute, Wabi::Router::ResourcesRoute
         @route.response(@request.env)
       else
         route_response
@@ -84,7 +84,7 @@ module Wabi
     end
 
     def self.add_route(http_verb, path, block)
-      Router
+      Router::Base
         .instance
         .add_route(http_verb, path, block)
     end

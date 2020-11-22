@@ -7,7 +7,7 @@ describe Wabi::Parameters do
     let(:request) { Rack::Request.new(env) }
     let(:env) { Rack::MockRequest.env_for(url) }
     let(:url) { '/some/url?q=search' }
-    let(:route) { instance_double(Wabi::Route) }
+    let(:route) { instance_double(Wabi::Router::Route) }
 
     before { allow(route).to receive(:params_from_path).with('/some/url').and_return(slug: 'some') }
 
