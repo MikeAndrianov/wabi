@@ -8,4 +8,5 @@ jobs:
       - checkout
       - run: bundle install
       - run: bundle exec rspec
+      - run: bundle exec rspec ./router/spec
       - run: bundle exec rubocop

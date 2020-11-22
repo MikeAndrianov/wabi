@@ -1,12 +1,22 @@
+PATH
+  remote: router
+  specs:
+    wabi_router (0.0.1)
+
 GEM
   remote: https://rubygems.org/
   specs:
     ast (2.4.1)
+    coderay (1.1.3)
     diff-lcs (1.4.4)
+    method_source (1.0.0)
     nio4r (2.5.4)
     parallel (1.19.2)
     parser (2.7.2.0)
       ast (~> 2.4.1)
+    pry (0.13.1)
+      coderay (~> 1.1)
+      method_source (~> 1.0)
     puma (5.0.2)
       nio4r (~> 2.0)
     rack (2.2.3)
@@ -46,11 +56,13 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  pry
   puma
   rack
   rack-test
   rspec
   rubocop
+  wabi_router!
 
 RUBY VERSION
    ruby 2.7.1p83

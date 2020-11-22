@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-describe Wabi::Router::Route do
+describe Wabi::Route do
   subject(:route) { described_class.new('GET', '/posts/:id', -> {}) }
 
   describe '#match?' do

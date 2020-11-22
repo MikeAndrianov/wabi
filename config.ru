@@ -3,6 +3,7 @@
 require 'rubygems'
 require 'bundler'
 require 'logger'
+require 'pry'
 
 Bundler.require
 

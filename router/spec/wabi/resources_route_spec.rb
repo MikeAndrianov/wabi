@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-describe Wabi::Router::ResourcesRoute do
+describe Wabi::ResourcesRoute do
   subject(:route) { described_class.new(:posts, excluded_actions) }
 
   let(:excluded_actions) { [] }
