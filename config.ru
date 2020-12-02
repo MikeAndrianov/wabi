@@ -23,9 +23,9 @@ use Middleware::StaticDispatch
 use Middleware::ErrorHandler, show_trace: true
 use Middleware::Etag
 
-
 app = App.new
 
+# rubocop:disable Metrics/BlockLength
 app.routes do
   get '/' do
     fresh_when(
@@ -61,5 +61,6 @@ app.routes do
 
   mount '/another', SecondApp
 end
+# rubocop:enable Metrics/BlockLength
 
 run app

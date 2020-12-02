@@ -8,7 +8,7 @@ describe Wabi::Router do
     let(:upcased_http_verb) { http_verb.upcase }
 
     it 'creates route with a specific structure' do
-      router.public_send(http_verb, url) { }
+      router.public_send(http_verb, url) {}
       route = router.routes[0]
 
       expect(route).to be_a(Wabi::Route)
