@@ -1,47 +1,17 @@
 # frozen_string_literal: true
 
 describe Wabi::Base do
-  let(:router) { instance_double(Wabi::Router) }
+  subject(:app_instance) { described_class.new }
+
   let(:url) { '/some/url' }
 
-  before do
-    allow(Wabi::Router).to receive(:instance).and_return(router)
-    allow(router).to receive(:add_route)
-  end
-
-  shared_examples 'adds a new route' do |http_verb|
-    before { described_class.public_send(http_verb, url) }
-
-    it { expect(router).to have_received(:add_route).with(http_verb.upcase, url, nil) }
-  end
-
-  describe '.get' do
-    include_examples 'adds a new route', 'get'
-  end
-
-  describe '.post' do
-    include_examples 'adds a new route', 'post'
-  end
-
-  describe '.mount' do
-    let(:mount) { Class.new }
-    let(:path) { '/some' }
-
-    before do
-      allow(router).to receive(:add_mount_route).with(path, mount)
-      described_class.mount(path, mount)
-    end
-
-    it { expect(router).to have_received(:add_mount_route).with(path, mount) }
-  end
-
   describe '#call' do
-    subject { described_class.new.call(env) }
+    subject { app_instance.call(env) }
 
     let(:env) { Rack::MockRequest.env_for(url) }
-    let(:route) { Wabi::Route.new('GET', url, ->(_env) { 'Hello' }) }
+    let(:router) { app_instance.router }
 
-    before { allow(router).to receive(:find_route).with('GET', url).and_return(route) }
+    before { router.get(url) { 'Hello' } }
 
     it { is_expected.to eq([200, {}, ['Hello']]) }
 
@@ -56,7 +26,7 @@ describe Wabi::Base do
     end
 
     context 'when route is not found' do
-      before { allow(router).to receive(:find_route).with('GET', url) }
+      let(:env) { Rack::MockRequest.env_for(url, method: 'POST') }
 
       it { is_expected.to eq([404, {}, ['Not Found']]) }
     end

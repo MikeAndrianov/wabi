@@ -30,7 +30,7 @@ module Middleware
     end
 
     def fresh?(headers, new_body, client_etag)
-      return if new_body.empty?
+      return if new_body[0].nil?
 
       etag = headers[Rack::ETAG] || etag(new_body)
       etag == client_etag
@@ -48,9 +48,10 @@ module Middleware
     end
 
     def etag(body)
-      return if body.empty?
+      body_content = body[0]
+      return if body_content.nil?
 
-      Digest::SHA256.hexdigest(body[0])
+      Digest::SHA256.hexdigest(body_content)
     end
   end
 end

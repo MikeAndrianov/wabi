@@ -11,26 +11,14 @@ module Wabi
     DEFAULT_STATUS = 200
     DEFAULT_HEADERS = {}.freeze
 
-    attr_reader :response
+    attr_reader :response, :router
 
-    def self.get(path, &block)
-      add_route('GET', path, block)
+    def initialize
+      @router = Router.new
     end
 
-    def self.post(path, &block)
-      add_route('POST', path, block)
-    end
-
-    def self.resources(resource_plural_name, except: [])
-      Wabi::Router
-        .instance
-        .add_resources_route(resource_plural_name, except)
-    end
-
-    def self.mount(path, app_class)
-      Wabi::Router
-        .instance
-        .add_mount_route(path, app_class)
+    def routes(&block)
+      router.instance_eval(&block)
     end
 
     def call(env)
@@ -56,39 +44,15 @@ module Wabi
     private
 
     def resolve
-      @route = Wabi::Router.instance.find_route(@request.request_method, @request.path_info)
+      @route = router.find_route(@request.request_method, @request.path_info)
       return NOT_FOUND_RESPONSE unless @route
 
       @response = Rack::Response[*generate_response]
       @response.finish
     end
 
-    # this method is related to router
     def generate_response
-      case @route
-      when Wabi::MountRoute, Wabi::ResourcesRoute
-        @route.response(@request.env)
-      else
-        route_response
-      end
+      router.response(@route, self, request_env: @request.env)
     end
-
-    def route_response
-      body = instance_eval(&@route.response)
-
-      [
-        @status || DEFAULT_STATUS,
-        @headers || DEFAULT_HEADERS,
-        [body]
-      ]
-    end
-
-    def self.add_route(http_verb, path, block)
-      Wabi::Router
-        .instance
-        .add_route(http_verb, path, block)
-    end
-
-    private_class_method :add_route
   end
 end
