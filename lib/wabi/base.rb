@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require './middleware/utils/cache'
-require_relative 'parameters'
 
 module Wabi
   class Base
@@ -28,7 +27,7 @@ module Wabi
     end
 
     def params
-      @params ||= Parameters.get(@route, @request)
+      @params ||= @route.params_for_request(@request)
     end
 
     # rubocop:disable Style/TrivialAccessors

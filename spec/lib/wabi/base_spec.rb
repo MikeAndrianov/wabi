@@ -4,12 +4,12 @@ describe Wabi::Base do
   subject(:app_instance) { described_class.new }
 
   let(:url) { '/some/url' }
+  let(:router) { app_instance.router }
 
   describe '#call' do
     subject { app_instance.call(env) }
 
     let(:env) { Rack::MockRequest.env_for(url) }
-    let(:router) { app_instance.router }
 
     before { router.get(url) { 'Hello' } }
 
@@ -29,18 +29,6 @@ describe Wabi::Base do
       let(:env) { Rack::MockRequest.env_for(url, method: 'POST') }
 
       it { is_expected.to eq([404, {}, ['Not Found']]) }
-    end
-  end
-
-  describe '#params' do
-    before { allow(Wabi::Parameters).to receive(:get).and_return({}) }
-
-    it 'cashes result' do
-      base_instance = described_class.new
-      base_instance.params
-      base_instance.params
-
-      expect(Wabi::Parameters).to have_received(:get).once
     end
   end
 end
