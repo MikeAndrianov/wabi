@@ -60,6 +60,6 @@ app.routes do
 
   mount '/another', SecondApp
 end
-# rubocop:disable Metrics/BlockLength
+# rubocop:enable Metrics/BlockLength
 
 run app
