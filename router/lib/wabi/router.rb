@@ -52,10 +52,7 @@ module Wabi
     end
 
     def route_response(route, app)
-      # TODO: maybe it's not a best idea to use here app instance
       body = app.instance_eval(&route.response)
-
-      # TODO: get rid of this hack
       headers = app.instance_eval { @headers } || Wabi::Base::DEFAULT_HEADERS
       status = app.instance_eval { @status } || Wabi::Base::DEFAULT_STATUS
 
