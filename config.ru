@@ -3,7 +3,6 @@
 require 'rubygems'
 require 'bundler'
 require 'logger'
-require 'pry'
 
 Bundler.require
 
@@ -20,7 +19,7 @@ use Rack::Reloader
 use Middleware::Logger, logger: Logger.new($stdout, level: Logger::INFO)
 use Middleware::ErrorRenderer
 use Middleware::StaticDispatch
-use Middleware::ErrorHandler, show_trace: true
+# use Middleware::ErrorHandler, show_trace: true
 use Middleware::Etag
 
 app = App.new
