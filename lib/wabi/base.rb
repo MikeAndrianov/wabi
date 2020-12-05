@@ -40,6 +40,14 @@ module Wabi
     end
     # rubocop:enable Style/TrivialAccessors
 
+    def __headers__
+      @headers
+    end
+
+    def __status__
+      @status
+    end
+
     private
 
     def resolve

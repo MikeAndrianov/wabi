@@ -53,8 +53,8 @@ module Wabi
 
     def route_response(route, app)
       body = app.instance_eval(&route.response)
-      headers = app.instance_eval { @headers } || Wabi::Base::DEFAULT_HEADERS
-      status = app.instance_eval { @status } || Wabi::Base::DEFAULT_STATUS
+      headers = app.__headers__ || Wabi::Base::DEFAULT_HEADERS
+      status = app.__status__ || Wabi::Base::DEFAULT_STATUS
 
       [status, headers, [body]]
     end
