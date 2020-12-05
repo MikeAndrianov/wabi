@@ -27,7 +27,7 @@ describe Wabi::Router do
   end
 
   describe '#resources' do
-    it { expect { router.resources(:posts) }.to change { router.resources_routes.count }.from(0).to(1) }
+    it { expect { router.resources(:posts) }.to change { router.routes.count }.from(0).to(1) }
   end
 
   describe '.mount' do

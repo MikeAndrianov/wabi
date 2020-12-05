@@ -11,7 +11,6 @@ module Wabi
     def initialize
       @routes = []
       @mount_routes = []
-      @resources_routes = []
     end
 
     def get(path, &block)
@@ -23,7 +22,7 @@ module Wabi
     end
 
     def resources(resource_plural_name, except: [])
-      @resources_routes << ResourcesRoute.new(resource_plural_name, except)
+      @routes << ResourcesRoute.new(resource_plural_name, except)
     end
 
     def mount(path, app_class)
@@ -34,7 +33,7 @@ module Wabi
       mount_route = @mount_routes.find { |route| path.start_with?(route.path) }
       return mount_route if mount_route
 
-      (routes + resources_routes).find { |route| route.match?(http_verb, path) }
+      routes.find { |route| route.match?(http_verb, path) }
     end
 
     def response(route, app, request_env:)
