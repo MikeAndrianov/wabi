@@ -25,5 +25,4 @@ describe Wabi::Route do
       it { is_expected.to eq(id: '1') }
     end
   end
-
 end

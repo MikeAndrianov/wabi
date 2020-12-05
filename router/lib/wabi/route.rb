@@ -1,8 +1,12 @@
 # frozen_string_literal: true
 
+require_relative 'support/refined_hash'
+
 module Wabi
   class Route
     attr_reader :http_verb, :path, :response
+
+    using RefinedHash
 
     def initialize(http_verb, path, response)
       @http_verb = http_verb
@@ -25,7 +29,7 @@ module Wabi
     def params_for_request(request)
       params_from_path(request.path_info)
         .merge(request.params)
-        .transform_keys(&:to_sym) # TODO: make deep symbolize
+        .deep_symbolize_keys
     end
 
     private
