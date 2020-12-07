@@ -1,3 +1,8 @@
+PATH
+  remote: router
+  specs:
+    wabi_router (0.0.1)
+
 GEM
   remote: https://rubygems.org/
   specs:
@@ -51,6 +56,7 @@ DEPENDENCIES
   rack-test
   rspec
   rubocop
+  wabi_router!
 
 RUBY VERSION
    ruby 2.7.1p83

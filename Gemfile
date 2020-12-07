@@ -6,6 +6,7 @@ ruby '2.7.1'
 gem 'puma'
 gem 'rack'
 gem 'rubocop', require: false
+gem 'wabi_router', path: './router'
 
 gem 'rack-test'
 gem 'rspec'

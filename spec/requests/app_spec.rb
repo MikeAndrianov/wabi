@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 describe App do
-  let(:app) { App.new }
+  let(:app) { Rack::Builder.parse_file('config.ru').first }
 
   context 'get to /' do
     let(:response) { get '/' }
